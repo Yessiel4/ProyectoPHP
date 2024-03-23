@@ -15,12 +15,21 @@ Class conexionBD {
         $this->USER = $user;
         $this->PASSWORD = $password;
         $this->BD = $bd;
+
+        try{
+            $dsn = "mysql:host={$this->SERVER};dbname={$this->BD}";
+            $this->acceso = new PDO($dsn, $this->USER, $this->PASSWORD);
+            $this->acceso->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+            $this->acceso->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+        }catch(PDOException $e){
+            die("Error de conexion a BD". $e->getMessage());
+        }
+
+
     }                
     
-    public function conectar(){
-
-        $this->acceso = mysqli_connect($this->SERVER,$this->USER,$this->PASSWORD,$this->BD);
-
+    public function conectar(){        
         if($this->acceso){
             echo "Conexion Exitosa";
         }
@@ -31,9 +40,7 @@ Class conexionBD {
     }
 
     public function desconectar(){
-        mysqli_close($this->acceso);
+        $this->acceso=null;
     }
-
 }
-    
 ?>

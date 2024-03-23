@@ -2,18 +2,21 @@
 include('../conexion/conexionBD.php');
 Class crudBD extends conexionBD {
     private $connection;
+    private $result;
 
     public function _construct(){        
         
     }
 
-        public function insertPaciente( $inputDocumento, $inputNombre, $inputDireccion, $inputTelefono ){
+        public function insertPaciente($nombreTabla, $inputDocumento, $inputNombre, $inputDireccion, $inputTelefono ){
 
             
             $this->connection = new conexionBD();
-            $sql = "INSERT INTO paciente ( pac_documento, pac_nombre, pac_direccion, pac_telefono ) 
-                    VALUES ('$inputDocumento', '$inputNombre', '$inputDireccion', $inputTelefono)";
-            $stmt = mysqli_query($this->connection->conectar(), $sql);
+            $this->connection = $this->connection->conectar();
+            $sql = "INSERT INTO $nombreTabla ( pac_documento, pac_nombre, pac_direccion, pac_telefono ) 
+                    VALUES ('$inputDocumento', '$inputNombre', '$inputDireccion', '$inputTelefono')";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute();            
 
             if ( $stmt) {
                 echo "Paciente creado con exito";   
@@ -21,23 +24,45 @@ Class crudBD extends conexionBD {
                 echo "Error de Insercion: ";
             }
             
-            $this->connection->desconectar( $this->connection );
+            // $this->connection->desconectar();
         }
 
-        public function searchPaciente( $datoInput ){
+        public function searchPaciente($nombreTabla){
+
+            $this->connection = new conexionBD();
+            $this->connection = $this->connection->conectar();
+            $sql = "SELECT * FROM $nombreTabla";
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute();
+
+            $this->result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if($this->result){
+                return $this->result;                 
+            }else{
+                return null;
+            }
+            // $this->connection->desconectar();
+        }
+
+        public function searchPacienteId( $datoInput ){
 
             
             $this->connection->conectar();
             $sql = "SELECT * FROM paciente WHERE idPaciente=".$datoInput;
-            $stmt = $this->connection->prepare( $sql );
-            $stmt->excecute();
-            $row = $stmt->fetch();
-            if($row){
-                return new Paciente( $row['pac_documento'],$row['pac_nombre'],$row['pac_direccion'], $row['pac_telefono'] );                
+            $stmt = $this->connection->prepare($sql);
+            $stmt->execute();
+
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if($result){
+                foreach($result as $row){
+                return new Paciente( $row['pac_documento'],$row['pac_nombre'],$row['pac_direccion'], $row['pac_telefono'], $row['estrato_id'] ); 
+                }               
             }else{
                 return null;
             }
-            $this->connection->desconectar( $this->connection );
+            $this->connection->desconectar();
         }
 
         public function updatePaciente( $inputDocumento, $inputNombre, $inputDireccion, $inputTelefono ){

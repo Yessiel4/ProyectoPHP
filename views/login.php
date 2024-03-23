@@ -1,6 +1,8 @@
 <?php session_start();
   if(!isset($_SESSION['Document'])){   //Si no existe una sesión de usuario me regresa al index
     header("locaction:index.php");
+  }else if(!isset($_SESSION['Password'])){
+    header("locaction:index.php");
   }
  ?>
 
@@ -16,6 +18,15 @@
             <div class="form-value">
               <form action="principal.php" method="POST">
                 <h2>Login</h2>
+                
+                <div class="selects">
+                  <label for="">Roles</label>
+                <select name="Roles">
+                  <option value="Optometra">Optometra</option>
+                <option value="Administrador">Administrador</option>
+                </select>
+                </div>   
+
                 <div class="inputbox">
                   <ion-icon name="person-outline"></ion-icon>
                   <input name="Document" type="text" required>  
